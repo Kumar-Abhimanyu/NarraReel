@@ -32,7 +32,9 @@ export function DurationStep() {
   const planData = plan.data?.plan
   const p = planData && (planData.target_seconds ?? null) === (targetSeconds ?? null) ? planData : undefined
 
-  useEffect(() => setCustom(targetText), [targetText])
+  useEffect(() => {
+    setCustom(targetText)
+  }, [targetText])
 
   const setTarget = (seconds: number | null, text = '') =>
     patch({ targetSeconds: seconds, targetText: text, durationOption: null, ...(seconds ? { speed: 1 } : {}) })

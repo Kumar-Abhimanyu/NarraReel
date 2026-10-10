@@ -20,7 +20,9 @@ function Layout() {
   // the frame is the payoff of the caption choices, so it stays next to them
   const withPreview = pathname === '/captions' || pathname === '/export'
 
-  useEffect(() => window.scrollTo({ top: 0 }), [pathname])
+  useEffect(() => {
+    window.scrollTo({ top: 0 })
+  }, [pathname])
 
   return (
     <>
