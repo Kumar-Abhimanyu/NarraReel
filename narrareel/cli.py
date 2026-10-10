@@ -182,10 +182,10 @@ def voices(
     if not found:
         typer.echo("No voices found.")
         return
-    typer.echo(f"{'VOICE':38} {'NAME':14} {'LANG':8} {'GENDER':8} {'ACCENT':6} OFFLINE")
+    typer.echo(f"{'VOICE':38} {'NAME':22} {'LANG':8} {'GENDER':8} {'ACCENT':6} OFFLINE")
     for v in found:
         typer.echo(
-            f"{v.ref:38} {v.name[:14]:14} {v.language:8} {v.gender:8} {(v.accent or '-'):6} "
+            f"{v.ref:38} {v.name[:22]:22} {v.language:8} {v.gender:8} {(v.accent or '-'):6} "
             f"{'yes' if v.offline else 'no'}"
         )
 

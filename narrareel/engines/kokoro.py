@@ -85,17 +85,20 @@ KNOWN_VOICES = [
 
 
 def voice_info_from_id(voice_id: str) -> VoiceInfo | None:
-    """``af_heart`` -> Heart (US female). None for unsupported languages."""
+    """``af_heart`` -> Heart (US, female). None for unsupported languages."""
     if len(voice_id) < 4 or voice_id[2] != "_":
         return None
     lang = _LANGS.get(voice_id[0])
     if lang is None:
         return None
     gender = {"f": "female", "m": "male"}.get(voice_id[1], "unknown")
+    name = voice_id[3:].replace("_", " ").title()
+    if lang[0].startswith("en-"):  # English voices get "Heart (US, female)" in the UI and CLI
+        name = f"{name} ({lang[2]}, {gender})"
     return VoiceInfo(
         engine="kokoro",
         id=voice_id,
-        name=voice_id[3:].replace("_", " ").title(),
+        name=name,
         language=lang[0],
         gender=gender,  # type: ignore[arg-type]
         accent=lang[2],

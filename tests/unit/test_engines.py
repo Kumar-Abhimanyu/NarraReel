@@ -70,11 +70,13 @@ def test_kokoro_needs_download_when_models_missing():
 def test_kokoro_voice_mapping():
     v = kokoro.voice_info_from_id("af_heart")
     assert (v.name, v.language, v.gender, v.accent, v.offline) == (
-        "Heart", "en-US", "female", "US", True,
+        "Heart (US, female)", "en-US", "female", "US", True,
     )
     v = kokoro.voice_info_from_id("bm_george")
-    assert (v.language, v.gender, v.accent) == ("en-GB", "male", "UK")
+    assert (v.name, v.language, v.gender, v.accent) == ("George (UK, male)", "en-GB", "male", "UK")
     assert kokoro.voice_info_from_id("hf_alpha").language == "hi-IN"
+    # non-English voices keep the plain name until they get their own display names
+    assert kokoro.voice_info_from_id("hf_alpha").name == "Alpha"
     assert kokoro.voice_info_from_id("zz") is None
     assert kokoro.voice_info_from_id("xx_unknown") is None
     assert kokoro.kokoro_lang("bf_emma") == "en-gb"
