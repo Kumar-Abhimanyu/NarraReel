@@ -163,14 +163,6 @@ def pause_seconds(analysis: ScriptAnalysis, scale: float = 1.0) -> float:
     return total
 
 
-def boundary_pauses(analysis: ScriptAnalysis, scale: float = 1.0) -> list[float]:
-    """Pause after each sentence except the last."""
-    return [
-        (PARAGRAPH_PAUSE if s.ends_paragraph else SENTENCE_PAUSE).at(scale)
-        for s in analysis.sentences[:-1]
-    ]
-
-
 def speech_seconds(analysis: ScriptAnalysis, cps: float, speed: float = 1.0) -> float:
     return analysis.char_count / (cps * speed)
 

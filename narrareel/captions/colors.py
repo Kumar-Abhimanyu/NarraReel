@@ -42,7 +42,3 @@ def ass_tag_color(value: str) -> str:
 def ass_tag_alpha(value: str) -> str:
     """``&HAA&`` for alpha override tags (00 = opaque)."""
     return f"&H{255 - parse_hex(value)[3]:02X}&"
-
-
-def has_alpha(value: str) -> bool:
-    return parse_hex(value)[3] < 255

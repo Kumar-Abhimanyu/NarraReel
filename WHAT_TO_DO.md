@@ -1862,7 +1862,7 @@ ffmpeg -hide_banner -filters | grep -E " (ass|subtitles) "
 | D21 | `narrareel serve --demo`: 350-word cap, no uploads/cloning/model downloads, no token required | Public demo Space |
 | D22 | Served URLs use 127.0.0.1, not localhost | `localhost` adds ~2 s per request on this Windows machine (IPv6 fallback) |
 | D23 | Legacy Streamlit prototype removed; MoviePy bridge (P1-15) never built | The new renderer shipped first |
-| D24 | UI styled from `design.md` tokens (black canvas, electric yellow, Inter); no third-party name or logo used | Owner's design brief |
+| D24 | UI styled from `docs/design.md` tokens (black canvas, electric yellow, Inter); no third-party name or logo used | Owner's design brief |
 | D25 | Caption text is measured with Pillow's BASIC layout engine, never Raqm | Raqm is optional in Pillow builds and its kerning moves widths 1-4 %, which changed line breaks (and golden files) between machines |
 | D26 | The `clone` extra pins `setuptools<81` | `resemble-perth` (a Chatterbox dependency) imports `pkg_resources`; without it the watermarker is `None` and the model fails to load |
 | D27 | Chatterbox Turbo is called with `norm_loudness=False`; the sentence-cache key includes the model variant and a hash of the recording | Turbo's loudness step turns the reference into float64 under NumPy 2 and crashes; the old key served stale audio after a model switch or a deleted-and-recloned voice |

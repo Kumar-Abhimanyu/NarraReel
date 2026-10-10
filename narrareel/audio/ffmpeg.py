@@ -59,13 +59,6 @@ def find_ffprobe() -> str:
     raise DependencyMissing("ffprobe", _INSTALL_HINT)
 
 
-def reset_cache() -> None:
-    """Forget cached binary locations (used by tests and after changing env vars)."""
-    find_ffmpeg.cache_clear()
-    find_ffprobe.cache_clear()
-    has_libass.cache_clear()
-
-
 def _tail(data: bytes | str, lines: int = 30) -> str:
     text = data.decode("utf-8", "replace") if isinstance(data, bytes) else data
     return "\n".join(text.strip().splitlines()[-lines:])
