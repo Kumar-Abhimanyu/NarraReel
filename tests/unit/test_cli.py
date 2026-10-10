@@ -42,6 +42,35 @@ def test_version():
     assert res.exit_code == 0 and __version__ in res.output
 
 
+@pytest.mark.parametrize("json_out", [False, True])
+@pytest.mark.parametrize("ffmpeg_missing", [False, True])
+def test_doctor_reports_version_first(monkeypatch, json_out, ffmpeg_missing):
+    from narrareel.engines import registry
+    from narrareel.errors import DependencyMissing
+
+    def find_ffmpeg():
+        if ffmpeg_missing:
+            raise DependencyMissing("ffmpeg", "Install ffmpeg.")
+        return "ffmpeg"
+
+    monkeypatch.setattr(ff, "find_ffmpeg", find_ffmpeg)
+    monkeypatch.setattr(ff, "version", lambda: "7.0")
+    monkeypatch.setattr(ff, "find_ffprobe", lambda: "ffprobe")
+    monkeypatch.setattr(ff, "has_libass", lambda: True)
+    monkeypatch.setattr(registry, "available_engines", lambda: [])
+
+    res = runner.invoke(app, ["doctor", "--json"] if json_out else ["doctor"])
+    assert res.exit_code == (1 if ffmpeg_missing else 0), res.output
+    if json_out:
+        checks = json.loads(res.output)
+        assert checks[0] == {"name": "NarraReel", "ok": True, "detail": __version__, "core": True}
+        assert checks[1]["name"] == "Python"
+    else:
+        assert res.output.splitlines()[0] == f"[OK  ] NarraReel: {__version__}"
+        assert "Python:" in res.output
+        assert "ffmpeg:" in res.output
+
+
 def test_analyze_text(script_file):
     res = runner.invoke(app, ["analyze", str(script_file), "--target", "30s"])
     assert res.exit_code == 0, res.output

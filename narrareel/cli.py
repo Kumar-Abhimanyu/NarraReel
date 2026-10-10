@@ -107,7 +107,7 @@ def _download_progress(enabled: bool):
 @app.command()
 @friendly_errors
 def doctor(json_out: Annotated[bool, typer.Option("--json", help="Machine-readable output")] = False):
-    """Check Python, ffmpeg, voice engines and disk space."""
+    """Show the NarraReel version and check Python, ffmpeg, voice engines and disk space."""
     from .audio import ffmpeg as ff
     from .engines import registry
 
@@ -115,6 +115,8 @@ def doctor(json_out: Annotated[bool, typer.Option("--json", help="Machine-readab
 
     def add(name: str, ok: bool | None, detail: str, core: bool = True) -> None:
         checks.append({"name": name, "ok": ok, "detail": detail, "core": core})
+
+    add("NarraReel", True, __version__)
 
     py = sys.version_info
     add("Python", py >= (3, 10), f"{platform.python_version()} ({sys.executable})")

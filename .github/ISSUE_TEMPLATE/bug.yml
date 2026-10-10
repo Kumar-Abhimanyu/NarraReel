@@ -13,6 +13,7 @@ body:
     id: doctor
     attributes:
       label: Output of `narrareel doctor`
+      description: Paste the full output, including the NarraReel version on the first line.
       render: text
     validations:
       required: true
