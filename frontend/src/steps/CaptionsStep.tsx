@@ -3,6 +3,7 @@ import { api, fontPreviewUrl } from '../api/client'
 import type { FormatInfo, StylePreset } from '../api/types'
 import { Banner, Button, Card, ColorField, Field, Slider, Switch, Tabs } from '../components/ui'
 import { usePreviewUrl } from '../hooks/useAsync'
+import { LOW_CONTRAST, contrastRatio } from '../lib/color'
 import { useCatalog } from '../state/catalog'
 import { DEFAULT_DRAFT, effectiveStyle, toProject, useDraft } from '../state/project'
 import { useScriptInfo } from '../state/scriptInfo'
@@ -186,7 +187,7 @@ function PresetGrid() {
 function FineTune() {
   const styles = useCatalog((s) => s.styles)
   const refreshStyles = useCatalog((s) => s.refreshStyles)
-  const { captions, setOverride, clearOverrides, setCaptions } = useDraft()
+  const { captions, setOverride, clearOverrides, setCaptions, background } = useDraft()
   const toast = useSession((s) => s.toast)
   const [name, setName] = useState('')
   const base = styles.find((s) => s.id === captions.preset)
@@ -198,6 +199,17 @@ function FineTune() {
   const setHighlight = (m: typeof highlightMode) => {
     setOverride('highlight.mode', m === 'none' ? 'none' : eff.highlight.mode === 'none' ? 'word' : eff.highlight.mode)
     setOverride('highlight.box', m === 'box')
+  }
+
+  // a highlight nobody can see looks like a broken one, so say so
+  const backdrop = background.type === 'solid' ? background.color : null
+  let highlightWarning: string | null = null
+  if (highlightMode === 'box') {
+    const c = backdrop ? contrastRatio(eff.highlight.box_color, backdrop) : null
+    if (c !== null && c < LOW_CONTRAST) highlightWarning = 'This box is almost the same colour as the background, so you will not see it. Pick a brighter colour.'
+  } else if (highlightMode === 'colour') {
+    const c = contrastRatio(eff.colors.highlight, eff.colors.text)
+    if (c !== null && c < 1.1) highlightWarning = 'The highlight colour matches the text colour, so the spoken word will not stand out.'
   }
 
   const save = async () => {
@@ -219,7 +231,9 @@ function FineTune() {
         <div className="fine__body stack stack--lg">
           <div className="color-row">
             <ColorField label="Text" value={eff.colors.text} onChange={(v) => setOverride('colors.text', v)} />
-            <ColorField label="Highlight" value={eff.colors.highlight} onChange={(v) => setOverride('colors.highlight', v)} />
+            {highlightMode !== 'box' && (
+              <ColorField label="Highlight" value={eff.colors.highlight} onChange={(v) => setOverride('colors.highlight', v)} />
+            )}
             <ColorField label="Outline" value={eff.colors.outline} onChange={(v) => setOverride('colors.outline', v)} />
           </div>
 
@@ -238,6 +252,7 @@ function FineTune() {
           {highlightMode === 'box' && (
             <ColorField label="Box" value={eff.highlight.box_color} onChange={(v) => setOverride('highlight.box_color', v)} />
           )}
+          {highlightWarning && <p className="field__hint">{highlightWarning}</p>}
 
           <div className="grid-2">
             <Slider label="Font size" value={eff.font.size} min={40} max={220} step={2} onChange={(v) => setOverride('font.size', v)} />
