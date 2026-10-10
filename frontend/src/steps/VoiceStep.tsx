@@ -34,6 +34,18 @@ const LANGUAGE_NAMES: Record<string, string> = {
 
 const PAGE = 48
 
+/** Some names already read "Heart (US, female)"; do not repeat the accent and gender under them. */
+function voiceMeta(voice: Voice): string {
+  const named = voice.accent != null && voice.name.includes(`(${voice.accent}`)
+  return [
+    named ? null : voice.accent,
+    named || voice.gender === 'unknown' ? null : voice.gender,
+    voice.language,
+  ]
+    .filter(Boolean)
+    .join(', ')
+}
+
 function VoiceCard({
   voice,
   selected,
@@ -54,7 +66,7 @@ function VoiceCard({
         <Badge tone={voice.offline ? 'good' : 'plain'}>{voice.offline ? 'Offline' : 'Online'}</Badge>
       </div>
       <p className="voice__meta">
-        {[voice.accent, voice.gender !== 'unknown' ? voice.gender : null, voice.language].filter(Boolean).join(', ')}
+        {voiceMeta(voice)}
       </p>
       <div className="voice__actions">
         <Button variant="text" onClick={onPlay} aria-label={`${playing ? 'Stop' : 'Play'} sample of ${voice.name}`}>
