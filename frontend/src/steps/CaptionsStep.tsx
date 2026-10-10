@@ -184,10 +184,61 @@ function PresetGrid() {
   )
 }
 
+const PLACE_ROWS = [
+  { id: 'top', label: 'top' },
+  { id: 'middle', label: 'middle' },
+  { id: 'lower_middle', label: 'lower middle' },
+  { id: 'bottom', label: 'bottom' },
+] as const
+const PLACE_COLS = [
+  { id: 'left', label: 'left' },
+  { id: 'center', label: 'centre' },
+  { id: 'right', label: 'right' },
+] as const
+
+/** A small map of the frame: tap where the captions should sit. */
+function PlacementPad({
+  position,
+  align,
+  wide,
+  onPick,
+}: {
+  position: StylePreset['layout']['position']
+  align: StylePreset['layout']['align_x']
+  wide: boolean
+  onPick: (position: StylePreset['layout']['position'], align: StylePreset['layout']['align_x']) => void
+}) {
+  return (
+    <div className={`placement ${wide ? 'placement--wide' : ''}`} role="radiogroup" aria-label="Caption placement">
+      {PLACE_ROWS.map((row) =>
+        PLACE_COLS.map((col) => {
+          const on = row.id === position && col.id === align
+          return (
+            <button
+              key={`${row.id}-${col.id}`}
+              type="button"
+              role="radio"
+              aria-checked={on}
+              aria-label={`${row.label}, ${col.label}`}
+              className="placement__cell"
+              style={wide ? { aspectRatio: '16 / 9' } : undefined}
+              onClick={() => onPick(row.id, col.id)}
+            />
+          )
+        }),
+      )}
+    </div>
+  )
+}
+
 function FineTune() {
   const styles = useCatalog((s) => s.styles)
   const refreshStyles = useCatalog((s) => s.refreshStyles)
-  const { captions, setOverride, clearOverrides, setCaptions, background } = useDraft()
+  const { captions, setOverride, clearOverrides, setCaptions, background, format } = useDraft()
+  const formats = useCatalog((s) => s.formats)
+  const fmt = formats.find((f) => f.id === format)
+  const frameW = fmt?.width ?? 1080
+  const xRange = Math.round((frameW * 0.35) / 10) * 10
   const toast = useSession((s) => s.toast)
   const [name, setName] = useState('')
   const base = styles.find((s) => s.id === captions.preset)
@@ -258,23 +309,27 @@ function FineTune() {
             <Slider label="Font size" value={eff.font.size} min={40} max={220} step={2} onChange={(v) => setOverride('font.size', v)} />
             <Slider label="Outline width" value={eff.outline_width} min={0} max={20} step={0.5} onChange={(v) => setOverride('outline_width', v)} />
             <Slider label="Words per caption" value={eff.layout.words_per_chunk} min={1} max={8} step={1} onChange={(v) => setOverride('layout.words_per_chunk', v)} />
-            <Slider label="Vertical offset" value={eff.layout.offset_y} min={-400} max={400} step={10} onChange={(v) => setOverride('layout.offset_y', v)} format={(v) => `${v > 0 ? '+' : ''}${v} px`} />
           </div>
 
           <Switch label="Capital letters" checked={eff.font.uppercase} onChange={(v) => setOverride('font.uppercase', v)} />
 
-          <Field label="Position">
-            <Tabs
-              label="Caption position"
-              value={eff.layout.position}
-              onChange={(v) => setOverride('layout.position', v)}
-              items={[
-                { id: 'top', label: 'Top' },
-                { id: 'middle', label: 'Middle' },
-                { id: 'lower_middle', label: 'Lower' },
-                { id: 'bottom', label: 'Bottom' },
-              ]}
-            />
+          <Field label="Where the text sits">
+            <div className="placement-row">
+              <PlacementPad
+                position={eff.layout.position}
+                align={eff.layout.align_x}
+                wide={!!fmt && !!fmt.width && !!fmt.height && fmt.width > fmt.height}
+                onPick={(p, a) => {
+                  setOverride('layout.position', p)
+                  setOverride('layout.align_x', a)
+                }}
+              />
+              <div className="stack">
+                <Slider label="Move left / right" value={eff.layout.offset_x} min={-xRange} max={xRange} step={10} onChange={(v) => setOverride('layout.offset_x', v)} format={(v) => `${v > 0 ? '+' : ''}${v} px`} />
+                <Slider label="Move up / down" value={eff.layout.offset_y} min={-400} max={400} step={10} onChange={(v) => setOverride('layout.offset_y', v)} format={(v) => `${v > 0 ? '+' : ''}${v} px`} />
+              </div>
+            </div>
+            <p className="field__hint">Pick a spot, then nudge it. Captions stay inside the platform safe zones unless you move them out.</p>
           </Field>
           <div className="grid-2">
             <Field label="Lines">

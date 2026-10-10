@@ -31,6 +31,23 @@ class VideoFormat(BaseModel):
     def is_video(self) -> bool:
         return bool(self.width and self.height)
 
+    def anchor_x(self, align: str = "center", offset: int = 0) -> tuple[int, int, float]:
+        """Where caption text is pinned horizontally: (x, ASS alignment number, room for text in px).
+
+        Left and right keep to the format's side margins; on the right the platform's button column
+        (``safe_zone.right``) is respected too.
+        """
+        if not self.is_video:
+            raise FormatError("Audio-only exports have no caption position.")
+        width = self.width  # type: ignore[assignment]
+        margin = width * (1 - self.max_text_width) / 2  # type: ignore[operator]
+        if align == "left":
+            return round(margin) + offset, 4, width - 2 * margin  # type: ignore[operator]
+        if align == "right":
+            edge = width - max(margin, self.safe_zone.get("right", 0.0) * width)  # type: ignore[operator]
+            return round(edge) + offset, 6, edge - margin
+        return width // 2 + offset, 5, width * self.max_text_width  # type: ignore[operator]
+
     def position_y(self, position: str, offset: int = 0) -> int:
         if not self.is_video:
             raise FormatError("Audio-only exports have no caption position.")

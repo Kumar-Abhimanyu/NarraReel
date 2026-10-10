@@ -314,6 +314,29 @@ def test_ass_structure_and_style_line():
     assert "\\t(" not in events[1]  # ...and only the first
 
 
+def _first_event(res):
+    return next(ln for ln in res.ass.splitlines() if ln.startswith("Dialogue:"))
+
+
+def test_text_can_be_placed_left_or_right_and_nudged():
+    reels = get_format("reels")  # 1080 wide, 8 % side margins, 10 % button column on the right
+    left = _build("bold-pop", layout={"align_x": "left"})
+    assert "\\an4\\pos(86,1190)" in _first_event(left)
+    right = _build("bold-pop", layout={"align_x": "right"})
+    assert "\\an6\\pos(972,1190)" in _first_event(right)  # clear of the button column
+    nudged = _build("bold-pop", layout={"align_x": "center", "offset_x": -100, "offset_y": 50})
+    assert "\\an5\\pos(440,1240)" in _first_event(nudged)
+    x, an, room = reels.anchor_x("right")
+    assert (x, an) == (972, 6) and room == pytest.approx(972 - 86.4)
+
+
+def test_side_aligned_text_wraps_inside_the_room_it_has():
+    x, _, room = get_format("reels").anchor_x("left")
+    res = _build("minimal", script="word " * 40, layout={"align_x": "left", "words_per_chunk": 8})
+    assert x == 86 and room < 1080  # the room shrinks to the margins, so chunks are budgeted for it
+    assert res.chunks
+
+
 def test_active_word_is_highlighted_in_each_event():
     res = _build("bold-pop")
     events = [ln for ln in res.ass.splitlines() if ln.startswith("Dialogue:")]

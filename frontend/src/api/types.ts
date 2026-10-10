@@ -91,6 +91,8 @@ export interface StylePreset {
     max_lines: number
     position: 'top' | 'middle' | 'lower_middle' | 'bottom'
     offset_y: number
+    align_x: 'left' | 'center' | 'right'
+    offset_x: number
   }
   highlight: { mode: 'word' | 'karaoke' | 'none'; scale: number; box: boolean; box_color: string; box_padding: number }
   animation: { in: 'none' | 'pop' | 'fade' | 'bounce'; duration_ms: number }

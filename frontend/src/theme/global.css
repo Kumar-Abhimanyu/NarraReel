@@ -6,8 +6,23 @@
   box-sizing: border-box;
 }
 
+/* Everything is sized in rem, so the whole interface scales with this one value.
+   16 px up to a 1600 x 900 window (laptops, tablets, phones), then it grows with the window:
+   about 17 px on 1080p, 19 px on 2K and 24 px on 4K. Height is checked too, so an ultrawide
+   monitor does not blow the interface up. */
 html {
   -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  font-size: clamp(
+    16px,
+    min(calc(16px + (100vw - 1600px) * 0.0036), calc(16px + (100vh - 900px) * 0.0066)),
+    26px
+  );
+}
+@media (max-width: 359px) {
+  html {
+    font-size: 15px; /* very small phones */
+  }
 }
 
 body {
@@ -18,6 +33,15 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   min-height: 100vh;
+  min-height: 100dvh;
+  overflow-wrap: break-word;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
 }
 
 h1,
@@ -73,7 +97,7 @@ textarea {
 .skip-link {
   position: absolute;
   left: var(--space-md);
-  top: -80px;
+  top: -5rem;
   z-index: 100;
   background: var(--color-primary);
   color: var(--color-on-primary);
@@ -129,7 +153,7 @@ textarea {
   max-width: var(--container);
   margin: 0 auto;
   min-height: var(--nav-height);
-  padding: 0 var(--space-lg);
+  padding: 0 max(var(--space-lg), var(--safe-right)) 0 max(var(--space-lg), var(--safe-left));
   display: flex;
   align-items: center;
   gap: var(--space-lg);
@@ -145,8 +169,8 @@ textarea {
   gap: var(--space-xs);
 }
 .brand__mark {
-  width: 28px;
-  height: 28px;
+  width: 1.75rem;
+  height: 1.75rem;
 }
 .brand__name {
   color: var(--color-on-dark);
@@ -168,7 +192,7 @@ textarea {
   display: inline-flex;
   align-items: center;
   gap: var(--space-xs);
-  padding: var(--space-xs) 14px;
+  padding: var(--space-xs) 0.875rem;
   border-radius: var(--radius-md);
   color: var(--color-muted);
   font-size: var(--text-body-sm);
@@ -183,11 +207,11 @@ textarea {
 .step-tab__num {
   display: inline-grid;
   place-items: center;
-  width: 20px;
-  height: 20px;
+  width: 1.25rem;
+  height: 1.25rem;
   border-radius: var(--radius-pill);
   border: 1px solid var(--color-hairline-strong);
-  font-size: 11px;
+  font-size: 0.6875rem;
   font-weight: 600;
 }
 .step-tab--active .step-tab__num {
@@ -205,7 +229,8 @@ textarea {
 .page {
   max-width: var(--container);
   margin: 0 auto;
-  padding: 0 var(--space-lg) var(--space-section);
+  padding: 0 max(var(--space-lg), var(--safe-right)) calc(var(--space-section) + var(--safe-bottom))
+    max(var(--space-lg), var(--safe-left));
 }
 
 .summary {
@@ -221,7 +246,7 @@ textarea {
   display: block;
 }
 .layout__main {
-  max-width: 880px;
+  max-width: 55rem;
 }
 .layout--split .layout__main {
   max-width: none;
@@ -231,13 +256,13 @@ textarea {
   flex-direction: column;
 }
 .layout__aside {
-  order: -1; /* below 1024px the preview sits above the controls it reflects */
+  order: -1; /* below 64rem the preview sits above the controls it reflects */
   margin-bottom: var(--space-lg);
 }
 @media (min-width: 1024px) {
   .layout--split {
     display: grid;
-    grid-template-columns: minmax(0, 7fr) minmax(320px, 5fr);
+    grid-template-columns: minmax(0, 7fr) minmax(20rem, 5fr);
     gap: var(--space-xxl);
     align-items: start;
   }
@@ -265,7 +290,7 @@ textarea {
 }
 .grid-2 {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
   gap: var(--space-lg);
 }
 .step-head {
@@ -359,8 +384,8 @@ textarea {
   align-items: center;
   justify-content: center;
   gap: var(--space-xs);
-  height: 40px;
-  padding: 0 20px;
+  height: 2.5rem;
+  padding: 0 1.25rem;
   border: 1px solid transparent;
   border-radius: var(--radius-md);
   font-size: var(--text-body-sm);
@@ -398,8 +423,8 @@ textarea {
   color: var(--color-on-dark);
 }
 .btn--lg {
-  height: 48px;
-  padding: 0 28px;
+  height: 3rem;
+  padding: 0 1.75rem;
   font-size: var(--text-body-md);
 }
 .btn:disabled {
@@ -420,8 +445,8 @@ textarea {
 }
 
 .spinner {
-  width: 14px;
-  height: 14px;
+  width: 0.875rem;
+  height: 0.875rem;
   border: 2px solid currentColor;
   border-right-color: transparent;
   border-radius: 50%;
@@ -443,7 +468,7 @@ textarea {
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 2px 10px;
+  padding: 2px 0.625rem;
   border-radius: var(--radius-pill);
   background: var(--color-surface-elevated);
   color: var(--color-on-dark);
@@ -475,7 +500,7 @@ textarea {
   gap: var(--space-xxs);
 }
 .tab {
-  padding: var(--space-xs) 14px;
+  padding: var(--space-xs) 0.875rem;
   border: 0;
   border-radius: var(--radius-md);
   background: transparent;
@@ -524,7 +549,7 @@ textarea {
   min-width: 0;
 }
 .field--grow {
-  flex: 1 1 220px;
+  flex: 1 1 13.75rem;
 }
 .field__head {
   display: flex;
@@ -552,9 +577,9 @@ textarea {
 
 .input,
 .select {
-  height: 40px;
+  height: 2.5rem;
   width: 100%;
-  padding: 10px 14px;
+  padding: 0.625rem 0.875rem;
   background: var(--color-surface-elevated);
   border: 1px solid var(--color-hairline-strong);
   border-radius: var(--radius-md);
@@ -572,15 +597,15 @@ textarea {
 }
 .select {
   appearance: none;
-  padding-right: 36px;
+  padding-right: 2.25rem;
   background-image: linear-gradient(45deg, transparent 50%, var(--color-muted) 50%),
     linear-gradient(135deg, var(--color-muted) 50%, transparent 50%);
   background-position:
-    calc(100% - 18px) 17px,
-    calc(100% - 13px) 17px;
+    calc(100% - 1.125rem) 1.0625rem,
+    calc(100% - 0.8125rem) 1.0625rem;
   background-size:
-    5px 5px,
-    5px 5px;
+    0.3125rem 0.3125rem,
+    0.3125rem 0.3125rem;
   background-repeat: no-repeat;
 }
 .inline-form {
@@ -591,14 +616,14 @@ textarea {
 }
 .filters {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(11.875rem, 1fr));
   gap: var(--space-md);
 }
 
 .slider {
   width: 100%;
   accent-color: var(--color-primary);
-  height: 24px;
+  height: 1.5rem;
 }
 .slider__marks {
   display: flex;
@@ -624,8 +649,8 @@ textarea {
   appearance: none;
   position: relative;
   flex: none;
-  width: 40px;
-  height: 24px;
+  width: 2.5rem;
+  height: 1.5rem;
   margin: 0;
   border-radius: var(--radius-pill);
   background: var(--color-hairline-strong);
@@ -634,10 +659,10 @@ textarea {
 .switch::after {
   content: '';
   position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 18px;
-  height: 18px;
+  top: 0.1875rem;
+  left: 0.1875rem;
+  width: 1.125rem;
+  height: 1.125rem;
   border-radius: 50%;
   background: var(--color-on-dark);
 }
@@ -645,7 +670,7 @@ textarea {
   background: var(--color-primary);
 }
 .switch:checked::after {
-  left: 19px;
+  left: 1.1875rem;
   background: var(--color-on-primary);
 }
 
@@ -660,8 +685,8 @@ textarea {
   gap: var(--space-xs);
 }
 .color-field__swatch {
-  width: 36px;
-  height: 36px;
+  width: 2.25rem;
+  height: 2.25rem;
   padding: 0;
   border: 1px solid var(--color-hairline-strong);
   border-radius: var(--radius-md);
@@ -688,7 +713,7 @@ textarea {
   padding: var(--space-md);
   background: var(--color-surface-card);
   border: 1px solid var(--color-hairline);
-  border-left: 3px solid var(--color-blue);
+  border-left: 0.1875rem solid var(--color-blue);
   border-radius: var(--radius-md);
 }
 .banner--warn {
@@ -717,7 +742,7 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
-  max-width: min(440px, calc(100vw - 2 * var(--space-lg)));
+  max-width: min(27.5rem, calc(100vw - 2 * var(--space-lg)));
 }
 .toast {
   display: flex;
@@ -727,7 +752,7 @@ textarea {
   padding: var(--space-sm) var(--space-md);
   background: var(--color-surface-elevated);
   border: 1px solid var(--color-hairline-strong);
-  border-left: 3px solid var(--color-blue);
+  border-left: 0.1875rem solid var(--color-blue);
   border-radius: var(--radius-md);
   color: var(--color-on-dark);
   font-size: var(--text-body-sm);
@@ -743,13 +768,13 @@ textarea {
   border: 0;
   background: none;
   color: var(--color-muted);
-  font-size: 20px;
+  font-size: 1.25rem;
   line-height: 1;
   cursor: pointer;
 }
 
 .progress {
-  height: 8px;
+  height: 0.5rem;
   border-radius: var(--radius-xs);
   background: var(--color-surface-elevated);
   overflow: hidden;
@@ -804,7 +829,7 @@ textarea {
 .script-input {
   display: block;
   width: 100%;
-  min-height: 320px;
+  min-height: 20rem;
   padding: var(--space-lg);
   background: transparent;
   border: 0;
@@ -854,7 +879,7 @@ textarea {
 }
 .sentence {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 96px 72px;
+  grid-template-columns: minmax(0, 1fr) 6rem 4.5rem;
   align-items: center;
   gap: var(--space-md);
   padding: var(--space-xs) 0;
@@ -867,7 +892,7 @@ textarea {
   white-space: nowrap;
 }
 .sentence__bar {
-  height: 6px;
+  height: 0.375rem;
   border-radius: var(--radius-xs);
   background: var(--color-surface-elevated);
 }
@@ -887,7 +912,7 @@ textarea {
 }
 @media (max-width: 640px) {
   .sentence {
-    grid-template-columns: minmax(0, 1fr) 64px;
+    grid-template-columns: minmax(0, 1fr) 4rem;
   }
   .sentence__bar {
     display: none;
@@ -898,11 +923,11 @@ textarea {
 
 .option-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(16.25rem, 1fr));
   gap: var(--space-md);
 }
 .option-grid--tight {
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
 }
 .option {
   display: flex;
@@ -962,7 +987,7 @@ textarea {
 
 .voice-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(15.625rem, 1fr));
   gap: var(--space-sm);
 }
 .voice {
@@ -1004,7 +1029,7 @@ textarea {
 
 .format-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(8.75rem, 1fr));
   gap: var(--space-sm);
 }
 .format {
@@ -1026,7 +1051,7 @@ textarea {
 .format__shape {
   display: flex;
   align-items: center;
-  height: 52px;
+  height: 3.25rem;
   margin-bottom: var(--space-xs);
 }
 .format__shape > span {
@@ -1038,8 +1063,8 @@ textarea {
   border-color: var(--color-primary);
 }
 .format__audio {
-  width: 44px;
-  height: 20px;
+  width: 2.75rem;
+  height: 1.25rem;
   border-style: dashed !important;
 }
 .format__name {
@@ -1054,7 +1079,7 @@ textarea {
 
 .font-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(10.625rem, 1fr));
   gap: var(--space-sm);
 }
 .font-card {
@@ -1074,7 +1099,7 @@ textarea {
 }
 .font-card__img {
   width: 100%;
-  height: 48px;
+  height: 3rem;
   object-fit: contain;
   object-position: left center;
   background: var(--color-canvas);
@@ -1088,7 +1113,7 @@ textarea {
 
 .preset-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(11.875rem, 1fr));
   gap: var(--space-sm);
 }
 .preset {
@@ -1109,7 +1134,7 @@ textarea {
 .preset__thumb {
   display: block;
   position: relative;
-  height: 104px;
+  height: 6.5rem;
   overflow: hidden;
   border-radius: var(--radius-sm);
   background: var(--color-canvas);
@@ -1158,16 +1183,16 @@ textarea {
 }
 .phone {
   position: relative;
-  width: min(100%, calc((100vh - 230px) * 9 / 16), 340px);
+  width: min(100%, calc((100vh - 14.375rem) * 9 / 16), 21.25rem);
   overflow: hidden;
   background: var(--color-canvas);
-  border: 6px solid var(--color-surface-elevated);
-  border-radius: 28px;
+  border: 0.375rem solid var(--color-surface-elevated);
+  border-radius: 1.75rem;
 }
 .phone--landscape {
   width: 100%;
   border-radius: var(--radius-lg);
-  border-width: 4px;
+  border-width: 0.25rem;
 }
 .phone--audio {
   width: 100%;
@@ -1195,8 +1220,8 @@ textarea {
   position: absolute;
   top: var(--space-sm);
   right: var(--space-sm);
-  width: 14px;
-  height: 14px;
+  width: 0.875rem;
+  height: 0.875rem;
   border: 2px solid var(--color-primary);
   border-right-color: transparent;
   border-radius: 50%;
@@ -1209,7 +1234,7 @@ textarea {
 }
 .zone {
   position: absolute;
-  background: repeating-linear-gradient(135deg, rgb(239 68 68 / 0.25) 0 6px, rgb(239 68 68 / 0.1) 6px 12px);
+  background: repeating-linear-gradient(135deg, rgb(239 68 68 / 0.25) 0 0.375rem, rgb(239 68 68 / 0.1) 0.375rem 0.75rem);
 }
 .zone--top {
   top: 0;
@@ -1230,14 +1255,14 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: var(--space-xs);
-  width: min(100%, 340px);
+  width: min(100%, 21.25rem);
 }
 .preview__note {
   color: var(--color-muted);
   font-size: var(--text-caption);
 }
 .preview__error {
-  width: min(100%, 340px);
+  width: min(100%, 21.25rem);
   color: var(--color-rose);
   font-size: var(--text-body-sm);
 }
@@ -1246,7 +1271,7 @@ textarea {
 
 .summary-list {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(13.75rem, 1fr));
   gap: var(--space-md) var(--space-lg);
 }
 .summary-list dt {
@@ -1346,7 +1371,7 @@ textarea {
 @media (max-width: 767px) {
   .page,
   .nav__inner {
-    padding-inline: var(--space-md);
+    padding-inline: max(var(--space-md), var(--safe-left)) max(var(--space-md), var(--safe-right));
   }
   .display {
     font-size: var(--text-display-sm);
@@ -1368,7 +1393,7 @@ textarea {
 
 @media (max-width: 1023px) {
   .phone:not(.phone--landscape):not(.phone--audio) {
-    width: min(100%, 220px);
+    width: min(100%, 13.75rem);
   }
 }
 
@@ -1378,7 +1403,7 @@ textarea {
   margin: 0;
   padding: var(--space-md) var(--space-lg);
   background: var(--color-surface-elevated);
-  border-left: 3px solid var(--color-primary);
+  border-left: 0.1875rem solid var(--color-primary);
   border-radius: var(--radius-md);
   color: var(--color-on-dark);
   font-size: var(--text-title-md);
@@ -1394,8 +1419,8 @@ textarea {
   font-weight: 600;
 }
 .meter {
-  width: 120px;
-  height: 8px;
+  width: 7.5rem;
+  height: 0.5rem;
   border-radius: var(--radius-xs);
   background: var(--color-surface-elevated);
   overflow: hidden;
@@ -1431,8 +1456,184 @@ textarea {
 }
 .consent input {
   flex: none;
-  width: 20px;
-  height: 20px;
+  width: 1.25rem;
+  height: 1.25rem;
   margin: 2px 0 0;
   accent-color: var(--color-primary);
+}
+
+/* ---------- placement pad (where the captions sit in the frame) ---------- */
+
+.placement {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 0.25rem;
+  width: min(100%, 11rem);
+  padding: 0.375rem;
+  background: var(--color-canvas);
+  border: 1px solid var(--color-hairline-strong);
+  border-radius: var(--radius-md);
+}
+.placement--wide {
+  width: min(100%, 17rem);
+}
+.placement__cell {
+  position: relative;
+  min-height: 1.5rem;
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: var(--color-surface-elevated);
+  cursor: pointer;
+}
+.placement__cell::after {
+  content: '';
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-muted-soft);
+  transform: translate(-50%, -50%);
+}
+.placement__cell[aria-checked='true'] {
+  background: var(--color-primary);
+}
+.placement__cell[aria-checked='true']::after {
+  background: var(--color-on-primary);
+}
+.placement-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-lg);
+}
+.placement-row > .stack {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+/* ---------- responsive: phones, tablets, laptops, 2K / 4K ---------- */
+
+/* Anything that never wraps must still be able to shrink inside a flex or grid parent. */
+.layout__main,
+.layout__aside,
+.card,
+.stack,
+.row {
+  min-width: 0;
+}
+
+/* Touch screens: comfortable tap targets, no hover-only affordances. */
+@media (pointer: coarse) {
+  .btn,
+  .tab,
+  .chip,
+  .step-tab,
+  .placement__cell {
+    min-height: var(--touch-target);
+  }
+  .tab,
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .input,
+  select,
+  textarea {
+    min-height: var(--touch-target);
+    font-size: max(1rem, 16px); /* stops iOS from zooming into a focused field */
+  }
+}
+
+/* Tablets in portrait: two-column option grids stay comfortable, controls get a little more room. */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .page,
+  .nav__inner {
+    padding-inline: max(var(--space-xl), var(--safe-left)) max(var(--space-xl), var(--safe-right));
+  }
+  .layout__main {
+    max-width: none;
+  }
+}
+
+/* Phones. */
+@media (max-width: 599px) {
+  .step-nav {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+  .step-nav__next {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .step-nav .btn {
+    width: 100%;
+  }
+  .inline-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+  .tabs {
+    width: 100%;
+  }
+  .tabs .tab {
+    flex: 1 1 auto;
+    text-align: center;
+  }
+  .toasts {
+    left: var(--space-md);
+    right: var(--space-md);
+    bottom: calc(var(--space-md) + var(--safe-bottom));
+  }
+  .summary {
+    gap: var(--space-xs) var(--space-lg);
+  }
+}
+
+@media (max-width: 380px) {
+  .step-tab {
+    padding-inline: 0.625rem;
+  }
+  .step-tab__num {
+    display: none;
+  }
+  .preset-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Phones turned sideways, and any window that is wide but very short: the sticky bar and the
+   sticky preview would eat the screen, so they scroll away. */
+@media (max-height: 500px) and (orientation: landscape) {
+  .nav {
+    position: static;
+  }
+  .layout__aside {
+    position: static;
+  }
+  .page {
+    padding-bottom: var(--space-xl);
+  }
+}
+
+/* Big screens: let the two-column layout breathe and keep line lengths readable. */
+@media (min-width: 1440px) {
+  .layout--split {
+    grid-template-columns: minmax(0, 7fr) minmax(22rem, 5fr);
+  }
+}
+@media (min-width: 1920px) {
+  .preset-grid {
+    grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
+  }
+}
+@media (min-width: 2560px) {
+  .layout--split {
+    gap: calc(var(--space-xxl) * 1.25);
+  }
 }

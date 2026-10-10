@@ -193,6 +193,23 @@
           "minimum": -1000,
           "title": "Offset Y",
           "type": "integer"
+        },
+        "align_x": {
+          "default": "center",
+          "enum": [
+            "left",
+            "center",
+            "right"
+          ],
+          "title": "Align X",
+          "type": "string"
+        },
+        "offset_x": {
+          "default": 0,
+          "maximum": 1000,
+          "minimum": -1000,
+          "title": "Offset X",
+          "type": "integer"
         }
       },
       "title": "Layout",
