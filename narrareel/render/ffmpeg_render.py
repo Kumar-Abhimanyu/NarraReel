@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
-from ..audio.ffmpeg import find_ffmpeg, has_libass, popen_ffmpeg, run_ffmpeg
+from ..audio.ffmpeg import has_libass, popen_ffmpeg, run_ffmpeg
 from ..captions.colors import parse_hex
 from ..errors import DependencyMissing, FFmpegError, JobCancelled
 
@@ -199,11 +199,3 @@ def render_frame(
     args = [*bg_args, "-vf", ",".join(chain), "-ss", f"{at:.3f}", "-frames:v", "1", output]
     run_ffmpeg(args, cwd=job_dir, timeout=60)
     return job_dir / output
-
-
-def ffmpeg_exists() -> bool:
-    try:
-        find_ffmpeg()
-        return True
-    except DependencyMissing:
-        return False

@@ -296,10 +296,27 @@ def test_engine_model_variants_get_the_right_arguments(fake_chatterbox, monkeypa
     sel = lambda v: VoiceSelection(engine="chatterbox", voice_id=v, energy=0.5)  # noqa: E731
     monkeypatch.setenv("NARRAREEL_CLONE_MODEL", "turbo")
     eng.synthesize("a", sel("me"))
-    assert set(fake_chatterbox[-1][1]) == {"audio_prompt_path"}  # turbo has no exaggeration
+    # turbo has no exaggeration, and its own loudness step crashes under NumPy 2, so that is switched off
+    assert set(fake_chatterbox[-1][1]) == {"audio_prompt_path", "norm_loudness"}
+    assert fake_chatterbox[-1][1]["norm_loudness"] is False
     monkeypatch.delenv("NARRAREEL_CLONE_MODEL")
     eng.synthesize("b", sel("hindi"))
     assert fake_chatterbox[-1][1]["language_id"] == "hi"
+
+
+@needs_ffmpeg
+def test_cached_sentences_do_not_leak_across_recordings_or_models(fake_chatterbox, monkeypatch):
+    sel = VoiceSelection(engine="chatterbox", voice_id="me")
+    voices.create_profile(wav_bytes(speechish()), "Me", True)
+    eng = cb.ChatterboxEngine()
+    first = eng.cache_voice_key(sel)
+    assert eng.cache_voice_key(sel) == first
+    monkeypatch.setenv("NARRAREEL_CLONE_MODEL", "turbo")
+    assert eng.cache_voice_key(sel) != first  # another model variant sounds different
+    monkeypatch.delenv("NARRAREEL_CLONE_MODEL")
+    voices.delete_profile("me")
+    voices.create_profile(wav_bytes(speechish(level=0.3)), "Me", True)  # re-cloned: the id is reused
+    assert eng.cache_voice_key(sel) != first
 
 
 @needs_ffmpeg

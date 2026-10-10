@@ -11,6 +11,7 @@ Not exercised against the real weights in CI: the unit tests drive this class wi
 
 from __future__ import annotations
 
+import hashlib
 import importlib
 import importlib.util
 import logging
@@ -142,6 +143,13 @@ class ChatterboxEngine(TTSEngine):
 
     # ----------------------------------------------------------- synthesis
 
+    def cache_voice_key(self, voice: VoiceSelection) -> str:
+        # The same name can be re-recorded, and the model variant changes the sound: both must miss the cache.
+        ref = reference_path(voice.voice_id)
+        digest = hashlib.sha256(ref.read_bytes()).hexdigest()[:16] if ref.is_file() else "missing"
+        kind = pick_model(self._device_name(), get_profile(voice.voice_id).language)
+        return f"{voice.voice_id}:{kind}:{digest}"
+
     def synthesize(self, text: str, voice: VoiceSelection) -> SentenceAudio:
         profile = get_profile(voice.voice_id)
         ref = reference_path(voice.voice_id)
@@ -163,6 +171,10 @@ class ChatterboxEngine(TTSEngine):
                               exaggeration=exaggeration, cfg_weight=cfg)  # fmt: skip
             elif kind == "original":
                 kwargs.update(exaggeration=exaggeration, cfg_weight=cfg)
+            else:
+                # Turbo's own loudness step turns the reference into float64 under NumPy 2 and then
+                # crashes; the reference is already loudness-normalised when the voice is saved.
+                kwargs.update(norm_loudness=False)
             with self._lock:
                 wav = model.generate(text, **kwargs)  # type: ignore[attr-defined]
             samples = wav.squeeze().detach().cpu().numpy().astype("float32")

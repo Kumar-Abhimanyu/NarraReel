@@ -151,7 +151,9 @@ export function VoiceStep() {
   const audio = useRef<HTMLAudioElement | null>(null)
 
   useEffect(() => () => audio.current?.pause(), [])
-  useEffect(() => setLimit(PAGE), [engine, lang, gender])
+  useEffect(() => {
+    setLimit(PAGE)
+  }, [engine, lang, gender])
 
   const languages = useMemo(() => {
     const seen = new Set(voices.map((v) => v.language.split('-')[0]))

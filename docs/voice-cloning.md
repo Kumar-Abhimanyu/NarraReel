@@ -37,7 +37,7 @@ You can record and save voices **without** the cloning engine installed. Only sp
 |---|---|
 | NVIDIA GPU (CUDA) | Original Chatterbox (500M): best quality, fast. |
 | Apple Silicon | Original model on MPS (not verified by the maintainers; please report results). |
-| CPU only | Chatterbox Turbo (350M): works, slower. Or use the free Colab notebook. |
+| CPU only | Chatterbox Turbo (350M): works, but has **no energy control** (see below). Or use the free Colab notebook. |
 | Non-English reference | Multilingual model, chosen automatically from the voice's language. |
 
 Override with `NARRAREEL_CLONE_MODEL=original|turbo|multilingual` and `NARRAREEL_DEVICE=cpu|cuda|mps`.
@@ -46,9 +46,21 @@ The first run downloads about 2 GB of weights from Hugging Face. Speed is applie
 (the model has no speed control). Energy maps to the model's `exaggeration` and `cfg_weight` on the original and
 multilingual models; the Turbo model has no such control, so there energy only changes the audio processing.
 
+Measured on 2026-10-10 on a CPU-only Windows laptop (Python 3.13, `chatterbox-tts` 0.1.7), same sentence and voice,
+energy 0.0 versus 1.0:
+
+| Model | Average pitch | Pitch range | Length |
+|---|---|---|---|
+| Original (`NARRAREEL_CLONE_MODEL=original`) | 148 Hz to 168 Hz | 145 Hz to 158 Hz | 6.1 s to 5.4 s |
+| Turbo (the CPU default) | 147 Hz to 148 Hz | 137 Hz to 136 Hz | no change |
+
+So on a CPU, set `NARRAREEL_CLONE_MODEL=original` if you want the Energy slider to change the delivery. It takes about
+a minute for a short sentence on CPU; a GPU or the Colab notebook is much faster.
+
 Install notes (checked on 2026-10-10): `chatterbox-tts` 0.1.7 resolves on Python 3.13 and pins `torch==2.6.0`.
 Its pins can clash with other packages, so install the `clone` extra in its own virtual environment if you hit
-conflicts. On Windows the PyPI `torch` wheel is CPU-only; for a GPU follow the PyTorch install selector first.
+conflicts. The `clone` extra pins `setuptools<81`: Chatterbox's watermarking package imports `pkg_resources`, which
+newer setuptools no longer ships, and without it the model fails to load. On Windows the PyPI `torch` wheel is CPU-only; for a GPU follow the PyTorch install selector first.
 
 ## Free GPU: Google Colab
 

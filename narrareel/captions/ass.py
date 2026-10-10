@@ -142,11 +142,11 @@ def _event_text(
 
 
 def chunk_events(
-    style: CaptionStyle, fmt: VideoFormat, chunk: CaptionChunk, x: int, y: int
+    style: CaptionStyle, fmt: VideoFormat, chunk: CaptionChunk, x: int, y: int, an: int = 5
 ) -> list[str]:
     anim = style.animation
     mode = style.highlight.mode
-    base = f"\\an5\\pos({x},{y})"
+    base = f"\\an{an}\\pos({x},{y})"
     if style.blur:
         base += f"\\blur{style.blur:g}"
 
@@ -214,12 +214,11 @@ def build_captions(
         return text_width(pil, w.text, spacing) * grow + 2 * pad
 
     space = text_width(pil, "  " if pad else " ", spacing)
-    max_width = fmt.width * fmt.max_text_width  # type: ignore[operator]
-    chunks = chunk_words(cap_words, style, word_width, space, max_width)
+    x, an, room = fmt.anchor_x(style.layout.align_x, style.layout.offset_x)
+    chunks = chunk_words(cap_words, style, word_width, space, room)
 
-    x = fmt.width // 2  # type: ignore[operator]
     y = fmt.position_y(style.layout.position, style.layout.offset_y)
     out = [header(style, font, fmt)]
     for chunk in chunks:
-        out.extend(e + "\n" for e in chunk_events(style, fmt, chunk, x, y))
+        out.extend(e + "\n" for e in chunk_events(style, fmt, chunk, x, y, an))
     return CaptionResult("".join(out), chunks, font, warnings)

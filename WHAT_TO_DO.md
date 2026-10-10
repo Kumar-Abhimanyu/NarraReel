@@ -9,7 +9,7 @@
 | Python package | `narrareel` (`pip install narrareel`, command `narrareel`) — name verified free on PyPI and GitHub on 2026-10-10 |
 | Licence | MIT |
 | Document created | 2026-10-10 |
-| Current phase | **Phases 1–4 implemented, Phase 5 prepared** (see section 16 for what is verified and what is left for the owner) |
+| Current phase | **Phases 1–4 implemented and checked, Phase 5 prepared (only owner actions remain)** (see section 16 for what is verified and what is left for the owner) |
 
 ---
 
@@ -190,7 +190,7 @@ Uncommitted change in `generator.py`: adds `os.makedirs(TEMP_DIR, exist_ok=True)
 - Installed: edge-tts 7.2.7, moviepy 2.2.1, streamlit 1.52.2, pillow 11.3.0, numpy 2.4.0, imageio-ffmpeg 0.6.0.
 - System ffmpeg: **8.0.1 (gyan.dev essentials build)** at `C:\ProgramData\chocolatey\bin\ffmpeg` — **includes libass** (`ass` and `subtitles` filters present). ✅ Our planned renderer works on this machine.
 - `kokoro` (official, PyTorch) requires Python `<3.13` → **cannot install in this venv**. `kokoro-onnx` 0.6.1 supports `>=3.10,<3.14` → OK.
-- `chatterbox-tts` 0.1.7 pins `torch==2.6.0` for Python <3.14. ⚠️ VERIFY that torch 2.6.0 has Windows wheels for Python 3.13 before Phase 4.
+- `chatterbox-tts` 0.1.7 pins `torch==2.6.0` for Python <3.14. Verified 2026-10-10: torch 2.6.0 (CPU) installs on Windows + Python 3.13.
 
 ---
 
@@ -831,7 +831,7 @@ class TTSEngine(Protocol):
 - Model choice in UI: "Best quality (GPU)" → original/Turbo; "Fast on CPU" → Nano; "Other languages" → Multilingual V3.
 - Speed: not native → synthesize at 1.0 and apply `atempo` (5.5).
 - Energy: maps to exaggeration/cfg_weight (5.4). This is the **real** answer to "AI voice has no energy".
-- Dependencies are heavy: `torch==2.6.0`, `torchaudio==2.6.0`, `transformers==5.2.0`, `diffusers==0.29.0`, `librosa==0.11.0` (pins from PyPI metadata for Python < 3.14). These pins may conflict with other packages → recommend installing the clone extra in its own venv or using Docker/Colab. ⚠️ VERIFY Windows + Python 3.13 install.
+- Dependencies are heavy: `torch==2.6.0`, `torchaudio==2.6.0`, `transformers==5.2.0`, `diffusers==0.29.0`, `librosa==0.11.0` (pins from PyPI metadata for Python < 3.14). These pins may conflict with other packages → recommend installing the clone extra in its own venv or using Docker/Colab. Verified 2026-10-10 on Windows + Python 3.13 (needs `setuptools<81`, see D26).
 
 #### 5.3.5 Other engines (backlog, evaluated 2026-10-10)
 
@@ -1465,8 +1465,8 @@ Table: component · version · licence · how we use it (core / extra / external
 
 #### P1-17 Tests + CI
 - [x] `tests/unit/` for everything pure; `tests/integration/` with markers.
-- [~] `.github/workflows/ci.yml`: matrix {ubuntu-latest, windows-latest} × Python {3.10, 3.12, 3.13}; install ffmpeg (apt / choco); `pip install -e ".[dev]"`; `ruff check`; `pytest -m "not network and not models"`; licence check job (6.4).
-- **Accept when:** CI green on the first PR.
+- [x] `.github/workflows/ci.yml`: matrix {ubuntu-latest, windows-latest} × Python {3.10, 3.12, 3.13}; install ffmpeg (apt / choco); `pip install -e ".[dev]"`; `ruff check`; `pytest -m "not network and not models"`; licence check job (6.4).
+- **Accept when:** CI green on the first PR. (Met: PR #11 and the follow-up push to `main` are green.)
 
 #### P1-18 Docs for Phase 1
 - [x] `THIRD_PARTY_LICENSES.md` (6.5) for current deps.
@@ -1478,7 +1478,7 @@ Table: component · version · licence · how we use it (core / extra / external
 - [x] On the owner's Windows machine (Python 3.13): `narrareel doctor` all green for core; `narrareel speak` works with Edge; with `[offline]`, works with Kokoro offline.
 - [x] Duration target hits within ±2%.
 - [x] Captions (SRT) visibly in sync for a 2-minute script.
-- [~] CI green; licence check green. (workflow written; the licence check passes locally; the first GitHub run has not happened yet)
+- [x] CI green; licence check green. (GitHub run of 2026-10-10: all 6 test jobs {ubuntu, windows} x {3.10, 3.12, 3.13}, frontend and licences passed)
 
 #### Suggested commit sequence for Phase 1
 1. `chore: add MIT licence, gitignore, editorconfig; move prototype to legacy/`
@@ -1535,7 +1535,7 @@ Table: component · version · licence · how we use it (core / extra / external
 - [x] P4-04 Voice profiles storage, list/delete/export/import.
 - [x] P4-05 API endpoints + React `VoiceRecorder`, quality report, consent, naming, sample playback.
 - [x] P4-06 Aligned timings default for cloned voices (if `[align]` installed), else estimated.
-- [~] P4-07 Colab notebook (5.8.5) + "Open in Colab" badge. **Notebook written; not run on Colab**
+- [~] P4-07 Colab notebook (5.8.5) + "Open in Colab" badge. **Notebook written and its commands checked against the real CLI and a real cloning run on Windows; not run on Colab itself (owner: run it once)**
 - [x] P4-08 Responsible-use doc section.
 - [⏸] P4-09 (Optional) CosyVoice 3 as a second cloning engine. **optional, not started**
 - **Done when:** owner records 30 s, gets a clone, generates a 60-second Reel in their own voice at "Hype" energy, and it sounds clearly more energetic than Edge/Kokoro.
@@ -1546,8 +1546,8 @@ See Sections 9–11 for details.
 - [x] P5-01 Rename GitHub repo to `NarraReel` (owner action; GitHub redirects old URLs); update remote. **done by the owner (repo is github.com/SanTiwari07/NarraReel)**
 - [x] P5-02 Full README (10.1).
 - [~] P5-03 Demo GIF (≤ 10 MB) + 60-second demo video (made with NarraReel itself!). **24 s demo made with NarraReel itself + GIF (docs/assets); the 60 s narrated-in-cloned-voice video needs the owner's voice**
-- [~] P5-04 Dockerfile + `docker run` one-liner; GPU variant. **Dockerfile written, not built (Docker daemon was not running)**
-- [~] P5-05 Hugging Face Space (CPU, Edge/Kokoro voices; cloning shown via Colab link). **docker/Dockerfile.space + `narrareel serve --demo` written; creating the Space is an owner action**
+- [x] P5-04 Dockerfile + `docker run` one-liner. **Built and run on 2026-10-10: `/api/health` ok, UI served, `narrareel make` rendered an 8 s video inside the container. The GPU variant is not built (backlog).**
+- [~] P5-05 Hugging Face Space (CPU, Edge/Kokoro voices; cloning shown via Colab link). **docker/Dockerfile.space builds and its demo mode answers on port 7860 (checked 2026-10-10); creating the Space is an owner action**
 - [~] P5-06 PyPI release `0.1.0` (trusted publishing via GitHub Actions). **release.yml uses PyPI trusted publishing; configuring it on pypi.org and tagging v0.1.0 are owner actions**
 - [x] P5-07 CONTRIBUTING, CODE_OF_CONDUCT, issue/PR templates, 10+ labelled good-first-issues. **Files written. The 10 issues are posted as #1-#10 (drafts in `docs/good-first-issues.md`).**
 - [⏸] P5-08 Launch posts (11.2). **owner**
@@ -1848,7 +1848,7 @@ ffmpeg -hide_banner -filters | grep -E " (ass|subtitles) "
 - Wheel builds, ships the web app, fonts and presets; a clean-venv `pip install "<wheel>[server]"` passes `narrareel doctor` and serves UI + API.
 - Chatterbox 0.1.7 API read from source: `ChatterboxTTS`, `ChatterboxTurboTTS`, `ChatterboxMultilingualTTS`; there is **no Nano model** in 0.1.7. It installs on Windows + Python 3.13 (torch 2.6.0 resolves, CPU build). A real end-to-end run (clone -> speak) was started but not confirmed when this log was written.
 
-**Not verified (owner / next session):** first GitHub CI and release runs; Docker image build (daemon was off); Colab notebook; transparent overlay inside CapCut/Premiere/DaVinci; real Chatterbox output quality and energy effect; Apple-Silicon MPS; the Hugging Face Space; PyPI trusted publishing setup; good-first-issues on GitHub; launch posts.
+**Not verified (owner / next session):** the release workflow run on GitHub (needs the PyPI setup and a tag); the Colab notebook on Colab itself; transparent overlay inside CapCut/Premiere/DaVinci; Apple-Silicon MPS; creating the Hugging Face Space; PyPI trusted-publishing setup; the 60-second demo video in the owner's own voice; launch posts. (CI, Docker and real Chatterbox cloning were verified later the same day, see the last session update.)
 
 **Decisions added**
 
@@ -1862,9 +1862,22 @@ ffmpeg -hide_banner -filters | grep -E " (ass|subtitles) "
 | D21 | `narrareel serve --demo`: 350-word cap, no uploads/cloning/model downloads, no token required | Public demo Space |
 | D22 | Served URLs use 127.0.0.1, not localhost | `localhost` adds ~2 s per request on this Windows machine (IPv6 fallback) |
 | D23 | Legacy Streamlit prototype removed; MoviePy bridge (P1-15) never built | The new renderer shipped first |
-| D24 | UI styled from `design.md` tokens (black canvas, electric yellow, Inter); no third-party name or logo used | Owner's design brief |
+| D24 | UI styled from `docs/design.md` tokens (black canvas, electric yellow, Inter); no third-party name or logo used | Owner's design brief |
 | D25 | Caption text is measured with Pillow's BASIC layout engine, never Raqm | Raqm is optional in Pillow builds and its kerning moves widths 1-4 %, which changed line breaks (and golden files) between machines |
+| D26 | The `clone` extra pins `setuptools<81` | `resemble-perth` (a Chatterbox dependency) imports `pkg_resources`; without it the watermarker is `None` and the model fails to load |
+| D27 | Chatterbox Turbo is called with `norm_loudness=False`; the sentence-cache key includes the model variant and a hash of the recording | Turbo's loudness step turns the reference into float64 under NumPy 2 and crashes; the old key served stale audio after a model switch or a deleted-and-recloned voice |
+| D28 | Caption placement is a 3 x 4 grid (`layout.align_x` left/centre/right x `layout.position`) plus `offset_x` / `offset_y` in video pixels. Left uses the format's side margin, right also clears the platform button column (`safe_zone.right`); chunks are budgeted for the room that leaves | One tap to put captions where the user wants, with fine nudging; centred output is byte-identical to before, so existing golden files are unchanged |
+| D29 | The web app is sized in `rem`; the root font size is 16 px up to a 1600 x 900 window and then grows with the window (about 17 px on 1080p, 19 px on 2K, 24 px on 4K, capped at 26 px, limited by height as well so ultrawide screens do not blow up). The page width is `clamp(80rem, 72vw, 150rem)` | One value scales the whole interface for laptops, 2K and 4K without per-component rules; phones and tablets keep 16 px and use breakpoints, safe-area insets and 44 px touch targets |
 
 **Session update (Linux sandbox, same day):** ran the CI commands locally on Linux / Python 3.13: `ruff check` clean, 275 backend tests pass, `check_licenses.py` passes, frontend typecheck + 13 tests + build pass. This found one real cross-platform bug (D25: the `bold-pop` golden file failed on Linux because of the Raqm layout engine) which would have failed the first Linux CI run; fixed. Added the perceptual-hash visual regression (P2-13). The Docker image could not be built in this sandbox (the container cannot reach `deb.debian.org`); Colab notebook commands were checked against the real CLI (flags and voice-id slug match) but not run on Colab.
+
+**Session update (Windows, later the same day):** checked the remaining items for real.
+- GitHub CI is green on the full matrix (Windows and Ubuntu x Python 3.10, 3.12, 3.13, plus frontend and licences), so the D25 fix and the golden/visual tests transfer across machines.
+- Docker: `docker/Dockerfile` and `docker/Dockerfile.space` both build; the app container serves the UI and API and rendered an 8 s video; the Space image answers in demo mode.
+- Real voice cloning (Chatterbox 0.1.7, Windows, Python 3.13, CPU) found three bugs that the stand-in tests could not: (1) the model did not load because newer setuptools has no `pkg_resources` (D26); (2) Turbo crashed with "expected Double but found Float" (D27); (3) the sentence cache ignored the model variant and the recording (D27). All three are fixed with tests. After the fixes: clone from a 16 s recording, speak, and `make` with aligned word timings gave a 12.000 s Reel with synced captions.
+- Energy measured on CPU: the original model raises pitch (148 to 168 Hz), widens the pitch range and speeds delivery about 11 % between energy 0 and 1; Turbo shows no change. The docs now tell CPU users to set `NARRAREEL_CLONE_MODEL=original` for energy control. The "sounds clearly more energetic" acceptance in section 7.4 is therefore met for the original model only; the owner should still judge it by ear with their own voice.
+- 277 backend tests pass, `ruff check narrareel tests scripts` is clean.
+
+**Session update (placement and responsive UI):** added the caption placement pad and the left/right offsets (D28, tests in `test_captions.py`); made the web app responsive from 320 px phones to 4K and ultrawide screens (D29). Checked by emulating 320, 390, 768, 1024, 1440, 1920, 2560, 3440 x 1440 and 3840 px wide windows and a landscape phone: no horizontal page overflow on any of the five steps, and the sticky bar and preview un-stick on short landscape screens. 279 backend tests, 17 frontend tests and `ruff check` pass. Not tested on physical devices or in Safari/Firefox.
 
 *End of plan document. Next actions: owner items above, then Phase 6 backlog.*

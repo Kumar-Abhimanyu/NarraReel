@@ -46,6 +46,8 @@ class Layout(BaseModel):
     max_lines: int = Field(2, ge=1, le=2)
     position: Literal["top", "middle", "lower_middle", "bottom"] = "lower_middle"
     offset_y: int = Field(0, ge=-1000, le=1000)
+    align_x: Literal["left", "center", "right"] = "center"  # which side of the frame the text hugs
+    offset_x: int = Field(0, ge=-1000, le=1000)  # nudge right (+) or left (-), in video pixels
 
 
 class Highlight(BaseModel):
