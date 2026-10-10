@@ -36,7 +36,8 @@ dependencies = [
 [project.optional-dependencies]
 offline = ["kokoro-onnx>=0.6"]
 align = ["faster-whisper>=1.1"]
-clone = ["chatterbox-tts>=0.1.7"]
+# setuptools<81: resemble-perth (a Chatterbox dependency) imports pkg_resources, which newer setuptools dropped
+clone = ["chatterbox-tts>=0.1.7", "setuptools<81"]
 server = [
     "fastapi>=0.110",
     "uvicorn[standard]>=0.29",

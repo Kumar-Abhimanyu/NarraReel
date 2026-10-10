@@ -94,13 +94,14 @@ def _synthesize_units(
     engine_tempo = 1.0 if caps.native_speed else voice.speed
     key_energy = voice.energy if caps.energy_control != "none" else None
     engine_voice = voice.model_copy(update={"speed": engine_speed})
+    voice_key = engine.cache_voice_key(voice)
     done = 0
     lock = threading.Lock()
 
     def work(unit: SynthUnit) -> _Clip:
         nonlocal done
         _check(cancel)
-        key = make_key(engine.id, engine.version, voice.voice_id, engine_speed, key_energy, unit.text)
+        key = make_key(engine.id, engine.version, voice_key, engine_speed, key_energy, unit.text)
         cached = cache.get(key) if cache else None
         if cached is None:
             audio: SentenceAudio = engine.synthesize(unit.text, engine_voice)

@@ -45,6 +45,11 @@ class TTSEngine(ABC):
     @abstractmethod
     def synthesize(self, text: str, voice: VoiceSelection) -> SentenceAudio: ...
 
+    def cache_voice_key(self, voice: VoiceSelection) -> str:
+        """What identifies this voice's sound in the sentence cache. Engines whose voice can change
+        without its id changing (a re-recorded clone, a different model variant) override this."""
+        return voice.voice_id
+
     def get_voice(self, voice_id: str) -> VoiceInfo | None:
         for v in self.list_voices():
             if v.id == voice_id:
